@@ -114,7 +114,7 @@ export const Navbar = () => {
               FP Commerce
             </Typography>
           </Link>
-          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center', paddingRight: 20 }}>
+          <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center', paddingRight: 25 }}>
             {pages.map((page, key) => (
               <Link key={key} to={page.path}>
                 <Button onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white', display: 'block' }}>
