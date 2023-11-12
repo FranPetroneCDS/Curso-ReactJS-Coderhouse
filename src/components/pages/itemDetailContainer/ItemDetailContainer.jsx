@@ -1,32 +1,41 @@
-import { useEffect, useState } from 'react'
-import { products } from '../../../productsMock'
+import { useEffect, useState, useContext } from 'react'
 import { ItemDetail } from './ItemDetail'
 import { useParams } from 'react-router-dom'
+import Loader from '../../common/loader/Loader'
+import { CartContext } from '../../../context/CartContext'
+import { getProductById } from '../../../utils/firebase/models/product'
+import { alertAddCart, alertStockLimit } from '../../../utils/alerts/itemDetail/alerts'
 
 const ItemDetailContainer = () => {
+  const { addToCart, getQuantityById } = useContext(CartContext)
+
   const [productSelected, setProductSelected] = useState({})
 
   const { id } = useParams()
+  const totalQuantity = getQuantityById(id)
 
   useEffect(() => {
-    let producto = products.find((product) => product.id === +id)
-
-    const getProduct = new Promise((resolve) => {
-      resolve(producto)
-    })
-
-    getProduct.then((res) => setProductSelected(res)).catch((err) => console.log(err))
+    getProductById(id).then((res) => setProductSelected(res))
   }, [id])
 
   const onAdd = (cantidad) => {
-    let obj = {
+    let product = {
       ...productSelected,
       quantity: cantidad,
     }
-    alert(`Producto Agregado: ${obj.title} (${cantidad} unidad/es)`)
+    if (!totalQuantity || totalQuantity + product.quantity <= product.stock) {
+      addToCart(product)
+      alertAddCart(product)
+    } else {
+      alertStockLimit()
+    }
   }
 
-  return <ItemDetail productSelected={productSelected} onAdd={onAdd} />
+  return productSelected.id ? (
+    <ItemDetail productSelected={productSelected} onAdd={onAdd} initial={totalQuantity} />
+  ) : (
+    <Loader />
+  )
 }
 
 export default ItemDetailContainer

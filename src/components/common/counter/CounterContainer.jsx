@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import CounterPresentacional from './CounterPresentacional'
+import { alertStockLimit } from '../../../utils/alerts/counter/alerts'
 
-const CounterContainer = ({ stock, onAdd }) => {
-  const [contador, setContador] = useState(1)
+const CounterContainer = ({ stock, onAdd, initial = 1 }) => {
+  const [contador, setContador] = useState(initial)
 
   const sumar = () => {
     if (contador < stock) {
       setContador(contador + 1)
     } else {
-      alert('No hay más stock disponible.')
+      alertStockLimit()
     }
   }
 

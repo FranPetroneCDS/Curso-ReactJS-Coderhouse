@@ -1,25 +1,23 @@
-import { useState, useEffect } from 'react'
-import { products } from '../../../productsMock'
-import { useParams } from 'react-router-dom'
 import ItemList from './ItemList'
+import Loader from '../../common/loader/Loader'
+import { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
+import { getProducts, getProductsByCategory } from '../../../utils/firebase/models/product'
 
 const ItemListContainer = () => {
   const [items, setItems] = useState([])
 
   const { categoryName } = useParams()
-  console.log(categoryName ? 'Filtrando' : 'Home')
 
   useEffect(() => {
-    const productosFiltrados = products.filter((product) => product.category === categoryName)
-
-    const tarea = new Promise((resolve) => {
-      resolve(categoryName ? productosFiltrados : products)
+    const productsFB = categoryName ? getProductsByCategory(categoryName) : getProducts()
+    productsFB.then((products) => {
+      const filteredProducts = products.filter((product) => product.stock > 0)
+      setItems(filteredProducts)
     })
-
-    tarea.then((res) => setItems(res)).catch((error) => console.log(error))
   }, [categoryName])
 
-  return <ItemList items={items} />
+  return items.length === 0 ? <Loader /> : <ItemList items={items} />
 }
 
 export default ItemListContainer

@@ -2,8 +2,13 @@ import { Button, Card, CardActions, CardContent, CardMedia, Typography } from '@
 import { Link } from 'react-router-dom'
 
 const ProductCard = ({ item }) => {
+  const priceARS = new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+  })
+
   return (
-    <Card variant="outlined" sx={{ maxWidth: 350, height: 550, textAlign: 'center' }}>
+    <Card variant="outlined" sx={{ minWidth: 260, maxWidth: 400, height: 550, textAlign: 'center' }}>
       <CardMedia sx={{ height: 340 }} image={item.img} title={`image ${item.title}`} />
       <CardContent>
         <Typography gutterBottom variant="h6" component="div">
@@ -13,7 +18,7 @@ const ProductCard = ({ item }) => {
           {item.description}
         </Typography>
         <Typography variant="overline" color="text.green" fontSize={15} fontWeight={'bold'}>
-          $ {item.price}
+          {priceARS.format(item.price)}
         </Typography>
       </CardContent>
       <CardActions sx={{ justifyContent: 'center' }}>

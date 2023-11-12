@@ -1,5 +1,10 @@
+import { useState, useContext, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import CartWidget from '../../common/cartWidget/CartWidget'
+import { CartContext } from '../../../context/CartContext'
+import { getCategories } from '../../../utils/firebase/models/category'
+import './Navbar.css'
 // Material UI
-import * as React from 'react'
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
@@ -9,21 +14,22 @@ import Menu from '@mui/material/Menu'
 import MenuIcon from '@mui/icons-material/Menu'
 import Container from '@mui/material/Container'
 import Button from '@mui/material/Button'
-import Tooltip from '@mui/material/Tooltip'
 import MenuItem from '@mui/material/MenuItem'
-// Customs
-import CartWidget from '../../common/cartWidget/CartWidget'
-import { Link } from 'react-router-dom'
-import './Navbar.css'
-
-const pages = [
-  { title: 'Todos', path: '/' },
-  { title: 'Remeras', path: '/category/remeras' },
-  { title: 'Camperas', path: '/category/camperas' },
-]
 
 export const Navbar = () => {
-  const [anchorElNav, setAnchorElNav] = React.useState(null)
+  const [anchorElNav, setAnchorElNav] = useState(null)
+  const [categories, setCategories] = useState([])
+
+  const { getTotalQuantity } = useContext(CartContext)
+
+  const totalQuantity = getTotalQuantity()
+
+  useEffect(() => {
+    getCategories().then((categories) => {
+      const arrSorted = categories.sort((cat1, cat2) => cat1.order - cat2.order)
+      setCategories(arrSorted)
+    })
+  }, [])
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget)
@@ -41,8 +47,7 @@ export const Navbar = () => {
             <Typography
               variant="h5"
               noWrap
-              component="a"
-              href="#"
+              component="p"
               sx={{
                 mr: 2,
                 display: { xs: 'none', md: 'flex' },
@@ -85,21 +90,21 @@ export const Navbar = () => {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-              {pages.map((page, key) => (
-                <Link key={key} to={page.path}>
-                  <MenuItem onClick={handleCloseNavMenu}>
-                    <Typography textAlign="center">{page.title}</Typography>
-                  </MenuItem>
-                </Link>
-              ))}
+              {categories.length > 0 &&
+                categories.map((category, key) => (
+                  <Link key={key} to={category.path}>
+                    <MenuItem onClick={handleCloseNavMenu}>
+                      <Typography textAlign="center">{category.title}</Typography>
+                    </MenuItem>
+                  </Link>
+                ))}
             </Menu>
           </Box>
           <Link to="/">
             <Typography
               variant="h5"
               noWrap
-              component="a"
-              href="#"
+              component="p"
               sx={{
                 mr: 2,
                 display: { xs: 'flex', md: 'none' },
@@ -115,20 +120,17 @@ export const Navbar = () => {
             </Typography>
           </Link>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' }, justifyContent: 'center', paddingRight: 25 }}>
-            {pages.map((page, key) => (
-              <Link key={key} to={page.path}>
-                <Button onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white', display: 'block' }}>
-                  {page.title}
-                </Button>
-              </Link>
-            ))}
+            {categories.length > 0 &&
+              categories.map((category, key) => (
+                <Link key={key} to={category.path}>
+                  <Button onClick={handleCloseNavMenu} sx={{ my: 2, color: 'white', display: 'block' }}>
+                    {category.title}
+                  </Button>
+                </Link>
+              ))}
           </Box>
 
-          <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Carrito">
-              <CartWidget />
-            </Tooltip>
-          </Box>
+          <Box sx={{ flexGrow: 0 }}>{totalQuantity > 0 && <CartWidget />}</Box>
         </Toolbar>
       </Container>
     </AppBar>
